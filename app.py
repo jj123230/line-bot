@@ -175,7 +175,7 @@ rich_left_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_left_menu)
     
 rich_url = 'https://imgur.com/uBtjdxk.jpg#'
 
-requests.get(rich_url, stream=True).content
+requests.get(rich_url, stream=True)
 
 
 
