@@ -3,3 +3,4 @@ gunicorn
 line-bot-sdk
 requests
 datetime
+pandas
