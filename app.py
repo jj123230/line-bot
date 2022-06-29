@@ -181,7 +181,6 @@ with urllib.request.urlopen(rich_url) as url:
 with open('temp.jpg', 'rb') as f:
     line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', f)
 
-line_bot_api.set_default_rich_menu(rich_left_menu_id)
 
 '''
 API
