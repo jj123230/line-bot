@@ -281,11 +281,11 @@ rich_right_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_right_menu)
 rich_url = 'https://imgur.com/bkgrOXw.jpg#'
 
 with urllib.request.urlopen(rich_url) as url:
-    with open('temp.jpg', 'wb') as fa:
-        fa.write(url.read())
+    with open('temp.jpg', 'wb') as f:
+        f.write(url.read())
         
-with open('temp.jpg', 'rb') as ff:
-    line_bot_api.set_rich_menu_image(rich_right_menu_id, 'image/jpeg', ff)
+with open('temp.jpg', 'rb') as fd:
+    line_bot_api.set_rich_menu_image(rich_right_menu_id, 'image/jpeg', fd)
     
 alias_left = RichMenuAlias(
     rich_menu_alias_id='richmenu-alias-left',
