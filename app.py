@@ -387,9 +387,7 @@ def dscbot_call(event):
         standard, peanut = check_status(bot_type, user_id, callback)
         line_bot_api.reply_message(reply_token, 
                                    TextSendMessage(text = '送出訂單:\n招牌麻糬: %s盒\n花生麻糬: %s盒\n感謝訂購!' % (standard, peanut)))
-        
 
-app.run() 
 
 
 ## app.run(port= port_ip)
