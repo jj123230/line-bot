@@ -177,9 +177,8 @@ rich_url = 'https://imgur.com/uBtjdxk.jpg#'
 with urllib.request.urlopen(rich_url) as url:
     with open('temp.jpg', 'wb') as f:
         f.write(url.read())
-        
-with open('temp.jpg', 'rb') as fd:
-    line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', fd)
+
+line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg',  open('temp.jpg', 'rb'))
 
 
 
