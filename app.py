@@ -19,7 +19,6 @@ import time
 import pandas as pd
 from datetime import datetime
 import urllib.request
-import io
 
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
