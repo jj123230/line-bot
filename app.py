@@ -177,8 +177,6 @@ rich_url = 'https://imgur.com/uBtjdxk.jpg#'
 
 line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', io.BytesIO(requests.get(rich_url, stream=True).content))
 
-line_bot_api.set_default_rich_menu(rich_left_menu_id)
-
 
 
 
