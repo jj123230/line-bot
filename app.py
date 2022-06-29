@@ -174,6 +174,15 @@ rich_left_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_left_menu)
     
 rich_url = 'https://imgur.com/uBtjdxk.jpg#'
 
+with urllib.request.urlopen(rich_url) as url:
+    with open('temp.jpg', 'wb') as f:
+        f.write(url.read())
+        
+with open('temp.jpg', 'rb') as f:
+    line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', f)
+
+line_bot_api.set_default_rich_menu(rich_left_menu_id)
+
 '''
 API
 '''
