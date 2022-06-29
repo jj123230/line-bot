@@ -175,8 +175,6 @@ rich_left_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_left_menu)
     
 rich_url = 'https://imgur.com/uBtjdxk.jpg#'
 
-line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', io.BytesIO(requests.get(rich_url, stream=True).content))
-
 line_bot_api.set_default_rich_menu(rich_left_menu_id)
 
 
@@ -276,7 +274,6 @@ rich_right_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_right_menu)
 
 rich_url = 'https://imgur.com/bkgrOXw.jpg#'
 
-line_bot_api.set_rich_menu_image(rich_right_menu_id, 'image/jpeg', io.BytesIO(requests.get(rich_url, stream=True).content))
     
 alias_left = RichMenuAlias(
     rich_menu_alias_id='richmenu-alias-left',
