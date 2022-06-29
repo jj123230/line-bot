@@ -37,6 +37,39 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(line_token)
 handler = WebhookHandler(line_channel_secret)
 
+stat_df = pd.DataFrame(columns=['bot', 'bot_id', 'standard', 'peanut'])
+
+def check_status(bot, bot_id, callback):
+    global stat_df
+    try:
+        standard = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].standard.values[0]
+        peanut = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].peanut.values[0]
+        
+    except Exception:
+        stat_df = stat_df.append({"bot" : bot,
+                                  "bot_id" : bot_id, 
+                                  "standard" : 0,
+                                  "peanut" : 0}, 
+                                     ignore_index=True)
+        standard = 0
+        peanut = 0
+        
+    if callback == 'standard_minus':
+        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'standard'] = standard - 1
+    elif callback == 'standard_plus':
+        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'standard'] = standard + 1
+    elif callback == 'peanut_minus':
+        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'peanut'] = peanut - 1
+    elif callback == 'peanut_plus':
+        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'peanut'] = peanut + 1
+    elif callback == 'empty':
+        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'standard'] = 0
+        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'peanut'] = 0
+        
+    standard = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].standard.values[0]
+    peanut = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].peanut.values[0]
+        
+    return standard, peanut
 '''
 API
 '''
