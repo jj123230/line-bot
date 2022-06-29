@@ -178,8 +178,8 @@ with urllib.request.urlopen(rich_url) as url:
     with open('temp.jpg', 'wb') as f:
         f.write(url.read())
         
-with open('temp.jpg', 'rb') as f:
-    line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', f)
+with open('temp.jpg', 'rb') as fd:
+    line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', fd)
 
 
 '''
