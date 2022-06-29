@@ -72,6 +72,108 @@ def check_status(bot, bot_id, callback):
     return standard, peanut
 
 
+for i in line_bot_api.get_rich_menu_list():
+    line_bot_api.delete_rich_menu(i.rich_menu_id)
+    
+for i in line_bot_api.get_rich_menu_alias_list().aliases:
+    line_bot_api.delete_rich_menu_alias(i.rich_menu_alias_id)
+
+area1= [RichMenuArea(bounds= RichMenuBounds(x= 0, y= 0, ##左選單
+                                            width= 1200, height= 185),
+                     action= RichMenuSwitchAction(label= 'Switch_left', \
+                                                  rich_menu_alias_id= 'richmenu-alias-left', data= "richmenu-changed-to-left")
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 1200, y= 0, ##右選單
+                                            width= 1300, height= 185),
+                     action= RichMenuSwitchAction(label= 'Switch_right', \
+                                                  rich_menu_alias_id= 'richmenu-alias-right', data= "richmenu-changed-to-right")
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 250, ## 1上
+                                            width= 500, height= 270),
+                     action= PostbackTemplateAction(label='standard', data='standard_image')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 500, ## 1下-
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='standard_minus', data='standard_minus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 280, y= 500, ## 1下+
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='standard_plus', data='standard_plus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 250, ## 2上
+                                            width= 500, height= 270),
+                     action= PostbackTemplateAction(label='peanut', data='peanut_image')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 500, ## 2下-
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='peanut_minus', data='peanut_minus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 875, y= 500, ## 2下+
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='peanut_plus', data='peanut_plus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 1250, y= 250, ## 3上
+                                            width= 500, height= 270),
+                     action= PostbackTemplateAction(label='standard', data='standard_image')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 1250, y= 500, ## 3下-
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='standard_minus', data='standard_minus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 1500, y= 500, ## 3下+
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='standard_plus', data='standard_plus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 1800, y= 250, ## 4上
+                                            width= 500, height= 270),
+                     action= PostbackTemplateAction(label='peanut', data='peanut_image')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 1800, y= 500, ## 4下-
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='peanut_minus', data='peanut_minus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 2050, y= 500, ## 4下+
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='peanut_plus', data='peanut_plus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 850, ## 5上
+                                            width= 500, height= 270),
+                     action= PostbackTemplateAction(label='standard', data='standard_image')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 1125, ## 5下-
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='standard_minus', data='standard_minus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 280, y= 1125, ## 5下+
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='standard_plus', data='standard_plus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 850, ## 6上
+                                            width= 500, height= 270),
+                     action= PostbackTemplateAction(label='peanut', data='peanut_image')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 1125, ## 6下-
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='peanut_minus', data='peanut_minus')
+                     ),
+        RichMenuArea(bounds= RichMenuBounds(x= 875, y= 1125, ## 6下+
+                                            width= 250, height= 250),
+                     action= PostbackTemplateAction(label='peanut_plus', data='peanut_plus')
+                     ),
+        ]
+
+rich_left_menu = RichMenu(
+    size= RichMenuSize(width= 2500, height= 1686),
+    selected= True,
+    name= 'rich_left_menu',
+    chat_bar_text= '一般麻糬',
+    areas= area1
+    )
+
+rich_left_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_left_menu)
+    
+rich_url = 'https://imgur.com/uBtjdxk.jpg#'
+
 '''
 API
 '''
