@@ -34,7 +34,6 @@ list_7= []
 list_8= []
 list_10= []
 schedule = '尚無課表'
-today = 0
 
 def count_list(bot_id, list1, list2, pm):
     if pm == 'plus':
@@ -85,17 +84,10 @@ def call_back():
 
 @handler.add(MessageEvent, message=TextMessage)
 def dscbot(event):
-    global schedule, status, today, list_7, list_8, list_10
+    global schedule, status, list_7, list_8, list_10
     msg = event.message.text
     user_id = event.source.user_id
     reply_token = event.reply_token
-    
-    if today != datetime.date.today().weekday():
-        today = datetime.date.today().weekday()
-        list_7= []
-        list_8= []
-        list_10= []
-        schedule = '尚無課表'
         
     if status == 'change':
         schedule = msg
@@ -117,24 +109,19 @@ def dscbot(event):
                                       quick_reply= QuickReply(items= [
                 QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
                 QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
-                QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count'))
+                QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count')),
+                QuickReplyButton(action= PostbackTemplateAction(label= '清空', data = 'empty'))
                 ]))
             line_bot_api.reply_message(reply_token, keyboard)
         
-        
+
 
 @handler.add(PostbackEvent)
 def dscbot_call(event):
-    global status, today, list_7, list_8, list_10
+    global status, schedule, list_7, list_8, list_10
     callback = event.postback.data
     user_id = event.source.user_id
     reply_token = event.reply_token
-    
-    if today != datetime.date.today().weekday():
-        today = datetime.date.today().weekday()
-        list_7= []
-        list_8= []
-        list_10= []
     
     if callback == 'enter_schedule':
         status = 'change'
@@ -149,3 +136,9 @@ def dscbot_call(event):
         else:
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
             
+    elif callback == 'empty':
+        list_7= []
+        list_8= []
+        list_10= []
+        schedule = '尚無課表'
+        line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
