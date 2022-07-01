@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-bot_type = 'ln'
-
 line_channel_secret = 'fdd685ea7c3d1fc4b4d6a205fa99b2d4'
 line_token = '0s7U3LuNfQVHBfhh+H30RTYt5hgwBm5kTtvx2zzgWehSb6+l1zgBZ48vf77CN4IP1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/Jbrn'+\
     'Q8dqDc5MUM9ABT1xKdNxPFCk/BkT90FF/Mv3UzFgj70wLo1TAdB04t89/1O/w1cDnyilFU='
@@ -14,7 +10,7 @@ import re
 import time
 
 import pandas as pd
-from datetime import datetime
+import datetime
 
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
@@ -33,12 +29,14 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(line_token)
 handler = WebhookHandler(line_channel_secret)
 
+status = 'chat'
 
 counting = ['7+', '8+', '7-', '8-', '78+', '7+8+', '78-', '7-8-', '10+', '10-']
 
 list_7= []
 list_8= []
 list_10= []
+schedule = ''
 
 
 def count_list(bot_id, list1, list2, pm):
@@ -94,6 +92,10 @@ def dscbot(event):
     user_id = event.source.user_id
     reply_token = event.reply_token
     
+    if status == 'change':
+        global schedule
+        schedule = msg
+    
     if msg in counting:
         list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
         list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
@@ -103,6 +105,34 @@ def dscbot(event):
         reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
         line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
         
-    else:
-        line_bot_api.reply_message(reply_token, TextSendMessage(text= msg))
+    elif msg == '功能':
+        keyboard= TextSendMessage(text = '課表或點名', 
+                                  quick_reply= QuickReply(items= [
+            QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
+            QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
+            QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count'))
+            ]))
+        line_bot_api.reply_message(reply_token, keyboard)
+        
+        
 
+@handler.add(PostbackEvent)
+def dscbot_call(event):
+    callback = event.postback.data
+    user_id = event.source.user_id
+    reply_token = event.reply_token
+    
+    if callback == 'enter_schedule':
+        global status
+        status = 'change'
+        line_bot_api.reply_message(reply_token, TextSendMessage(text = '請輸入課表'))
+        
+    elif callback == 'schedule':
+        line_bot_api.reply_message(reply_token, TextSendMessage(text = status))
+        
+    elif callback == 'count':
+        if datetime.date.today().weekday()== 5 :
+            line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
+        else:
+            line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
+        
