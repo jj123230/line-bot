@@ -23,9 +23,8 @@ from linebot.models import (PostbackEvent, MessageEvent, TextMessage,
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi('0s7U3LuNfQVHBfhh+H30RTYt5hgwBm5kTtvx2zzgWehSb6+l1zgBZ48vf77CN4IP1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/Jb'+\
-                          'rnQ8dqDc5MUM9ABT1xKdNxPFCk/BkT90FF/Mv3UzFgj70wLo1TAdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('fdd685ea7c3d1fc4b4d6a205fa99b2d4')
+line_bot_api = LineBotApi(os.environ.get("token"))
+handler = WebhookHandler(os.environ.get("secret"))
 
 status = 'chat'
 
@@ -35,6 +34,7 @@ list_7= []
 list_8= []
 list_10= []
 schedule = '尚無課表'
+today = 0
 
 def count_list(bot_id, list1, list2, pm):
     if pm == 'plus':
@@ -85,14 +85,22 @@ def call_back():
 
 @handler.add(MessageEvent, message=TextMessage)
 def dscbot(event):
-    global schedule, status
+    global schedule, status, today, list_7, list_8, list_10
     msg = event.message.text
     user_id = event.source.user_id
     reply_token = event.reply_token
     
+    if today != datetime.date.today().weekday():
+        today = datetime.date.today().weekday()
+        list_7= []
+        list_8= []
+        list_10= []
+        schedule = '尚無課表'
+        
     if status == 'change':
         schedule = msg
         status = 'chat'
+        line_bot_api.reply_message(reply_token, TextSendMessage(text = '課表已更改為:\n%s' % msg))
         
     elif status =='chat':
         if msg in counting:
@@ -117,10 +125,16 @@ def dscbot(event):
 
 @handler.add(PostbackEvent)
 def dscbot_call(event):
-    global status
+    global status, today, list_7, list_8, list_10
     callback = event.postback.data
     user_id = event.source.user_id
     reply_token = event.reply_token
+    
+    if today != datetime.date.today().weekday():
+        today = datetime.date.today().weekday()
+        list_7= []
+        list_8= []
+        list_10= []
     
     if callback == 'enter_schedule':
         status = 'change'
@@ -134,3 +148,4 @@ def dscbot_call(event):
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
         else:
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
+            
