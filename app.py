@@ -1,6 +1,3 @@
-'''
-code
-'''
 import requests
 import re
 import time
@@ -90,26 +87,28 @@ def dscbot(event):
     reply_token = event.reply_token
     
     if status == 'change':
-        global schedule
+        global schedule, status
         schedule = msg
-    
-    if msg in counting:
-        list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
-        list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
-        pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
-        count_list(user_id, list1, list2, pm)
+        status = 'chat'
         
-        reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
-        line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
-        
-    elif msg == '功能':
-        keyboard= TextSendMessage(text = '課表或點名', 
-                                  quick_reply= QuickReply(items= [
-            QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
-            QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
-            QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count'))
-            ]))
-        line_bot_api.reply_message(reply_token, keyboard)
+    elif status =='chat':
+        if msg in counting:
+            list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
+            list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
+            pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
+            count_list(user_id, list1, list2, pm)
+            
+            reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
+            line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
+            
+        elif msg == '功能':
+            keyboard= TextSendMessage(text = '課表或點名', 
+                                      quick_reply= QuickReply(items= [
+                QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
+                QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
+                QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count'))
+                ]))
+            line_bot_api.reply_message(reply_token, keyboard)
         
         
 
