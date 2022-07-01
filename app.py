@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jul  1 10:01:54 2022
-
-@author: admin
-"""
-
 '''
 code
 '''
@@ -124,12 +117,12 @@ def dscbot(event):
 
 @handler.add(PostbackEvent)
 def dscbot_call(event):
+    global status
     callback = event.postback.data
     user_id = event.source.user_id
     reply_token = event.reply_token
     
     if callback == 'enter_schedule':
-        global status
         status = 'change'
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '請輸入課表'))
         
@@ -141,4 +134,3 @@ def dscbot_call(event):
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
         else:
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
-        
