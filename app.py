@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jul  1 10:01:54 2022
+
+@author: admin
+"""
+
+'''
+code
+'''
 import requests
 import re
 import time
@@ -20,8 +30,9 @@ from linebot.models import (PostbackEvent, MessageEvent, TextMessage,
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi(os.environ.get("token"))
-handler = WebhookHandler(os.environ.get("secret"))
+line_bot_api = LineBotApi('0s7U3LuNfQVHBfhh+H30RTYt5hgwBm5kTtvx2zzgWehSb6+l1zgBZ48vf77CN4IP1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/Jb'+\
+                          'rnQ8dqDc5MUM9ABT1xKdNxPFCk/BkT90FF/Mv3UzFgj70wLo1TAdB04t89/1O/w1cDnyilFU=')
+handler = WebhookHandler('fdd685ea7c3d1fc4b4d6a205fa99b2d4')
 
 status = 'chat'
 
@@ -31,7 +42,6 @@ list_7= []
 list_8= []
 list_10= []
 schedule = '尚無課表'
-
 
 def count_list(bot_id, list1, list2, pm):
     if pm == 'plus':
@@ -82,12 +92,12 @@ def call_back():
 
 @handler.add(MessageEvent, message=TextMessage)
 def dscbot(event):
+    global schedule, status
     msg = event.message.text
     user_id = event.source.user_id
     reply_token = event.reply_token
     
     if status == 'change':
-        global schedule, status
         schedule = msg
         status = 'chat'
         
@@ -131,3 +141,4 @@ def dscbot_call(event):
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
         else:
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
+        
