@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-
 bot_type = 'ln'
 
-line_channel_secret = 'cc1d8b57614278cab126252aa4610364'
-line_token = 'H4IKf9kD11BsYCvNFaKoHvxb4LCnbt90RhTqpbvamFpdOHkpplrK/pN+yJ/hKtZujU8tVAA64VZ2ZHP2nZgtHELCDrRK'+\
-    'BdjsNMrBmOvaqKmAldGuLl/YgsCAaJFKJNs/2aU/nMM6c9kNyhjm+6XIMAdB04t89/1O/w1cDnyilFU='
-
-port_ip = 80  ## 需更改IP 
+line_channel_secret = 'fdd685ea7c3d1fc4b4d6a205fa99b2d4'
+line_token = '0s7U3LuNfQVHBfhh+H30RTYt5hgwBm5kTtvx2zzgWehSb6+l1zgBZ48vf77CN4IP1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/Jbrn'+\
+    'Q8dqDc5MUM9ABT1xKdNxPFCk/BkT90FF/Mv3UzFgj70wLo1TAdB04t89/1O/w1cDnyilFU='
 
 '''
 code
@@ -18,8 +15,6 @@ import time
 
 import pandas as pd
 from datetime import datetime
-import urllib.request
-import io
 
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
@@ -38,147 +33,40 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(line_token)
 handler = WebhookHandler(line_channel_secret)
 
-stat_df = pd.DataFrame(columns=['bot', 'bot_id', 'standard', 'peanut'])
 
-def check_status(bot, bot_id, callback):
-    global stat_df
-    try:
-        standard = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].standard.values[0]
-        peanut = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].peanut.values[0]
-        
-    except Exception:
-        stat_df = stat_df.append({"bot" : bot,
-                                  "bot_id" : bot_id, 
-                                  "standard" : 0,
-                                  "peanut" : 0}, 
-                                     ignore_index=True)
-        standard = 0
-        peanut = 0
-        
-    if callback == 'standard_minus':
-        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'standard'] = standard - 1
-    elif callback == 'standard_plus':
-        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'standard'] = standard + 1
-    elif callback == 'peanut_minus':
-        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'peanut'] = peanut - 1
-    elif callback == 'peanut_plus':
-        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'peanut'] = peanut + 1
-    elif callback == 'empty':
-        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'standard'] = 0
-        stat_df.at[stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].index[0], 'peanut'] = 0
-        
-    standard = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].standard.values[0]
-    peanut = stat_df[(stat_df.bot == bot) & (stat_df.bot_id == bot_id)].peanut.values[0]
-        
-    return standard, peanut
+counting = ['7+', '8+', '7-', '8-', '78+', '7+8+', '78-', '7-8-', '10+', '10-']
+
+list_7= []
+list_8= []
+list_10= []
 
 
-for i in line_bot_api.get_rich_menu_list():
-    line_bot_api.delete_rich_menu(i.rich_menu_id)
-    
-for i in line_bot_api.get_rich_menu_alias_list().aliases:
-    line_bot_api.delete_rich_menu_alias(i.rich_menu_alias_id)
+def count_list(bot_id, list1, list2, pm):
+    if pm == 'plus':
+        list1.append(bot_id)
+        list2.append(bot_id)
+    elif pm == 'minus':
+        while bot_id in list1: list1.remove(bot_id)
+        while bot_id in list2: list2.remove(bot_id)
 
-area1= [RichMenuArea(bounds= RichMenuBounds(x= 0, y= 0, ##左選單
-                                            width= 1200, height= 185),
-                     action= RichMenuSwitchAction(label= 'Switch_left', \
-                                                  rich_menu_alias_id= 'richmenu-alias-left', data= "richmenu-changed-to-left")
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 1200, y= 0, ##右選單
-                                            width= 1300, height= 185),
-                     action= RichMenuSwitchAction(label= 'Switch_right', \
-                                                  rich_menu_alias_id= 'richmenu-alias-right', data= "richmenu-changed-to-right")
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 250, ## 1上
-                                            width= 500, height= 270),
-                     action= PostbackTemplateAction(label='standard', data='standard_image')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 500, ## 1下-
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='standard_minus', data='standard_minus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 280, y= 500, ## 1下+
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='standard_plus', data='standard_plus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 250, ## 2上
-                                            width= 500, height= 270),
-                     action= PostbackTemplateAction(label='peanut', data='peanut_image')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 500, ## 2下-
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='peanut_minus', data='peanut_minus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 875, y= 500, ## 2下+
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='peanut_plus', data='peanut_plus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 1250, y= 250, ## 3上
-                                            width= 500, height= 270),
-                     action= PostbackTemplateAction(label='standard', data='standard_image')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 1250, y= 500, ## 3下-
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='standard_minus', data='standard_minus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 1500, y= 500, ## 3下+
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='standard_plus', data='standard_plus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 1800, y= 250, ## 4上
-                                            width= 500, height= 270),
-                     action= PostbackTemplateAction(label='peanut', data='peanut_image')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 1800, y= 500, ## 4下-
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='peanut_minus', data='peanut_minus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 2050, y= 500, ## 4下+
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='peanut_plus', data='peanut_plus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 850, ## 5上
-                                            width= 500, height= 270),
-                     action= PostbackTemplateAction(label='standard', data='standard_image')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 30, y= 1125, ## 5下-
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='standard_minus', data='standard_minus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 280, y= 1125, ## 5下+
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='standard_plus', data='standard_plus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 850, ## 6上
-                                            width= 500, height= 270),
-                     action= PostbackTemplateAction(label='peanut', data='peanut_image')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 625, y= 1125, ## 6下-
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='peanut_minus', data='peanut_minus')
-                     ),
-        RichMenuArea(bounds= RichMenuBounds(x= 875, y= 1125, ## 6下+
-                                            width= 250, height= 250),
-                     action= PostbackTemplateAction(label='peanut_plus', data='peanut_plus')
-                     ),
-        ]
+def count78():
+    return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
 
-rich_left_menu = RichMenu(
-    size= RichMenuSize(width= 2500, height= 1686),
-    selected= True,
-    name= 'rich_left_menu',
-    chat_bar_text= '一般麻糬',
-    areas= area1
-    )
+def count10():
+    return '10.30: %s人' % len(set(list_10))
 
-rich_left_menu_id = line_bot_api.create_rich_menu(rich_menu= rich_left_menu)
-    
-rich_url = 'https://imgur.com/uBtjdxk.jpg#'
-
-line_bot_api.set_rich_menu_image(rich_left_menu_id, 'image/jpeg', io.BytesIO(requests.get(rich_url, stream=True).content))
-
-
-
+callback= [
+    ['7+', list_7, [], 'plus', count78],
+    ['7-', list_7, [], 'minus', count78],
+    ['8+', list_8, [], 'plus', count78],
+    ['8-', list_8, [], 'minus', count78],
+    ['10+', list_10, [], 'plus', count10],
+    ['10-', list_10, [], 'minus', count10],
+    [['78+','7+8+'], list_7, list_8, 'plus', count78],
+    [['78-','7-8-'], list_7, list_8, 'minus', count78],
+           ]
+callback_df = pd.DataFrame(callback,
+                           columns=['callback', 'list1', 'list2', 'pm', 'func'])
 
 
 '''
@@ -206,68 +94,15 @@ def dscbot(event):
     user_id = event.source.user_id
     reply_token = event.reply_token
     
-    if msg in ['送出訂單', '清空購物車']:
-        flex = FlexSendMessage(
-            alt_text= ' 前往官網',
-            contents = {
-                      "type": "bubble",
-                      "hero": {
-                        "type": "image",
-                        "url": "https://imgur.com/aZcJH5H.jpg#",
-                        "size": "full",
-                        "aspectRatio": "20:13",
-                        "aspectMode": "cover",
-                        "action": {
-                          "type": "uri",
-                          "uri": "https://www.xn--phtz3i6te2s4ax8g038a4oh.tw/about-us.html"
-                        }
-                      }
-                    })
-        line_bot_api.reply_message(reply_token, flex)
+    if msg in counting:
+        list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
+        list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
+        pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
+        count_list(user_id, list1, list2, pm)
+        
+        reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
         
     else:
         line_bot_api.reply_message(reply_token, TextSendMessage(text= msg))
 
-@handler.add(PostbackEvent)
-def dscbot_call(event):
-    callback = event.postback.data
-    user_id = event.source.user_id
-    reply_token = event.reply_token
-    
-    ## Image Map
-    if callback == 'peanut_image':
-        image_message = ImageSendMessage(
-            original_content_url= 'https://imgur.com/aZcJH5H.jpg#',
-            preview_image_url = 'https://imgur.com/aZcJH5H.jpg#'
-            )
-        line_bot_api.reply_message(reply_token, image_message)
-        
-    elif callback == 'standard_image':
-        image_message = ImageSendMessage(
-            original_content_url= 'https://imgur.com/HfndbfZ.jpg#', ## standard
-            preview_image_url = 'https://imgur.com/HfndbfZ.jpg#', ## standard
-            )
-        line_bot_api.reply_message(reply_token, image_message)
-        
-    elif callback in ['standard_minus', 'standard_plus', 'peanut_minus', 'peanut_plus']:
-        standard, peanut = check_status(bot_type, user_id, callback)
-        
-        keyboard= TextSendMessage(text = '您的購物車裡目前為 \n招牌麻糬: %s盒\n花生麻糬: %s盒' % (standard, peanut), 
-                                  quick_reply= QuickReply(items= [
-            QuickReplyButton(action= PostbackTemplateAction(label= '清空購物車', text='清空購物車', data = 'empty')),
-            QuickReplyButton(action= PostbackTemplateAction(label= '送出訂單', text='送出訂單', data = 'send'))
-            ]))
-        line_bot_api.reply_message(reply_token, keyboard)
-        
-    elif callback == 'empty':
-        check_status(bot_type, user_id, callback)
-        line_bot_api.reply_message(reply_token, TextSendMessage(text = '購物車已清空，歡迎下次再來採購'))
-        
-    elif callback == 'send':
-        standard, peanut = check_status(bot_type, user_id, callback)
-        line_bot_api.reply_message(reply_token, 
-                                   TextSendMessage(text = '送出訂單:\n招牌麻糬: %s盒\n花生麻糬: %s盒\n感謝訂購!' % (standard, peanut)))
-
-
-
-## app.run(port= port_ip)
