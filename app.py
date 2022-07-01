@@ -1,7 +1,3 @@
-line_channel_secret = 'fdd685ea7c3d1fc4b4d6a205fa99b2d4'
-line_token = '0s7U3LuNfQVHBfhh+H30RTYt5hgwBm5kTtvx2zzgWehSb6+l1zgBZ48vf77CN4IP1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/Jbrn'+\
-    'Q8dqDc5MUM9ABT1xKdNxPFCk/BkT90FF/Mv3UzFgj70wLo1TAdB04t89/1O/w1cDnyilFU='
-
 '''
 code
 '''
@@ -11,6 +7,7 @@ import time
 
 import pandas as pd
 import datetime
+import os
 
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
@@ -26,8 +23,8 @@ from linebot.models import (PostbackEvent, MessageEvent, TextMessage,
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi(line_token)
-handler = WebhookHandler(line_channel_secret)
+line_bot_api = LineBotApi(os.environ.get("token"))
+handler = WebhookHandler(os.environ.get("secret"))
 
 status = 'chat'
 
@@ -36,7 +33,7 @@ counting = ['7+', '8+', '7-', '8-', '78+', '7+8+', '78-', '7-8-', '10+', '10-']
 list_7= []
 list_8= []
 list_10= []
-schedule = ''
+schedule = '尚無課表'
 
 
 def count_list(bot_id, list1, list2, pm):
@@ -128,11 +125,10 @@ def dscbot_call(event):
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '請輸入課表'))
         
     elif callback == 'schedule':
-        line_bot_api.reply_message(reply_token, TextSendMessage(text = status))
+        line_bot_api.reply_message(reply_token, TextSendMessage(text = schedule))
         
     elif callback == 'count':
         if datetime.date.today().weekday()== 5 :
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
-        else:
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
-        
+        else:
+            line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
