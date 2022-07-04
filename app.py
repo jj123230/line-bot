@@ -99,6 +99,7 @@ def dscbot(event):
         list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
         pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
         count_list(user_id, list1, list2, pm)
+        time.sleep(1)
         
         reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
         line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
