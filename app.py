@@ -1,3 +1,4 @@
+
 '''
 code
 '''
@@ -130,6 +131,7 @@ def dscbot_call(event):
         line_bot_api.reply_message(reply_token, TextSendMessage(text = schedule))
         '''
     if callback == 'count':
+        time.sleep(1)
         if datetime.date.today().weekday()== 5 :
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
         else:
