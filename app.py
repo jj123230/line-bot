@@ -33,7 +33,7 @@ counting = ['7+', '8+', '7-', '8-', '78+', '7+8+', '78-', '7-8-', '10+', '10-']
 list_7= []
 list_8= []
 list_10= []
-schedule = '尚無課表'
+## schedule = '尚無課表'
 
 def count_list(bot_id, list1, list2, pm):
     if pm == 'plus':
@@ -84,53 +84,51 @@ def call_back():
 
 @handler.add(MessageEvent, message=TextMessage)
 def dscbot(event):
-    global schedule, status, list_7, list_8, list_10
+    global list_7, list_8, list_10 ## schedule, status
     msg = event.message.text
     user_id = event.source.user_id
     reply_token = event.reply_token
-        
+    '''
     if status == 'change':
         schedule = msg
         status = 'chat'
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '課表已更改為:\n%s' % msg))
+        '''
+    if msg in counting:
+        list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
+        list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
+        pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
+        count_list(user_id, list1, list2, pm)
         
-    elif status =='chat':
-        if msg in counting:
-            list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
-            list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
-            pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
-            count_list(user_id, list1, list2, pm)
-            
-            reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
-            line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
-            
-        elif msg == '功能':
-            keyboard= TextSendMessage(text = '課表或點名', 
-                                      quick_reply= QuickReply(items= [
-                QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
-                QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
-                QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count')),
-                QuickReplyButton(action= PostbackTemplateAction(label= '清空', data = 'empty'))
-                ]))
-            line_bot_api.reply_message(reply_token, keyboard)
+        reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
         
-
+    elif msg == '功能':
+        keyboard= TextSendMessage(text = '點名',
+                                  quick_reply= QuickReply(items= [
+            ## QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
+            ## QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
+            QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count')),
+            QuickReplyButton(action= PostbackTemplateAction(label= '清空', data = 'empty'))
+            ]))
+        line_bot_api.reply_message(reply_token, keyboard)
+        
 
 @handler.add(PostbackEvent)
 def dscbot_call(event):
-    global status, schedule, list_7, list_8, list_10
+    global list_7, list_8, list_10 ## schedule, status
     callback = event.postback.data
     user_id = event.source.user_id
     reply_token = event.reply_token
-    
+    '''
     if callback == 'enter_schedule':
         status = 'change'
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '請輸入課表'))
         
     elif callback == 'schedule':
         line_bot_api.reply_message(reply_token, TextSendMessage(text = schedule))
-        
-    elif callback == 'count':
+        '''
+    if callback == 'count':
         if datetime.date.today().weekday()== 5 :
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
         else:
@@ -140,5 +138,5 @@ def dscbot_call(event):
         list_7= []
         list_8= []
         list_10= []
-        schedule = '尚無課表'
+        ## schedule = '尚無課表'
         line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
