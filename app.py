@@ -107,11 +107,11 @@ def dscbot(event):
         
     elif msg == '點名':
         time.sleep(1)
-          if datetime.date.today().weekday()== 5 :
-              line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
-          else:
-              line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
-            
+        if datetime.date.today().weekday()== 5 :
+            line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
+        else:
+            line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
+
     elif msg== '清空':
         list_7= []
         list_8= []
