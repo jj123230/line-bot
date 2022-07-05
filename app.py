@@ -120,7 +120,7 @@ def dscbot(event):
         line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
       
       
-      '''
+'''
         keyboard= TextSendMessage(text = '點名',
                                   quick_reply= QuickReply(items= [
             QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
