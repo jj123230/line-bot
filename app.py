@@ -96,28 +96,28 @@ def dscbot(event):
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '課表已更改為:\n%s' % msg))
         '''
     if msg in counting:
-      list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
-      list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
-      pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
-      count_list(user_id, list1, list2, pm)
-      time.sleep(1)
+        list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
+        list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
+        pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
+        count_list(user_id, list1, list2, pm)
+        time.sleep(1)
 
-      reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
-      line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
+        reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
         
     elif msg == '點名':
-      time.sleep(1)
-        if datetime.date.today().weekday()== 5 :
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
-        else:
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
+        time.sleep(1)
+          if datetime.date.today().weekday()== 5 :
+              line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
+          else:
+              line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
             
     elif msg== '清空':
-      list_7= []
-      list_8= []
-      list_10= []
-      ## schedule = '尚無課表'
-      line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
+        list_7= []
+        list_8= []
+        list_10= []
+        ## schedule = '尚無課表'
+        line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
       
       
       '''
