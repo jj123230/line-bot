@@ -27,6 +27,8 @@ def job():
     list_7, list_8, list_10= [], [], []
     print('clear!')
     
+job()
+    
 clear = BackgroundScheduler(daemon=True)
 clear.add_job(job,'cron', second = 30)
 clear.start()
@@ -40,8 +42,6 @@ status = 'chat'
 
 counting = ['7+', '8+', '7-', '8-', '78+', '7+8+', '78-', '7-8-', '10+', '10-']
 
-list_7, list_8, list_10= [], [], []
-## schedule = '尚無課表'
     
 def count_list(bot_id, list1, list2, pm):
     if pm == 'plus':
@@ -59,18 +59,23 @@ def count10():
     global list_10
     return '10.30: %s人' % len(set(list_10))
 
-callback= [
-    ['7+', list_7, [], 'plus', count78],
-    ['7-', list_7, [], 'minus', count78],
-    ['8+', list_8, [], 'plus', count78],
-    ['8-', list_8, [], 'minus', count78],
-    ['10+', list_10, [], 'plus', count10],
-    ['10-', list_10, [], 'minus', count10],
-    [['78+','7+8+'], list_7, list_8, 'plus', count78],
-    [['78-','7-8-'], list_7, list_8, 'minus', count78],
-           ]
-callback_df = pd.DataFrame(callback,
-                           columns=['callback', 'list1', 'list2', 'pm', 'func'])
+def refresh_df():
+    global callback, callback_df, list_7, list_8, list_10
+    callback= [
+        ['7+', list_7, [], 'plus', count78],
+        ['7-', list_7, [], 'minus', count78],
+        ['8+', list_8, [], 'plus', count78],
+        ['8-', list_8, [], 'minus', count78],
+        ['10+', list_10, [], 'plus', count10],
+        ['10-', list_10, [], 'minus', count10],
+        [['78+','7+8+'], list_7, list_8, 'plus', count78],
+        [['78-','7-8-'], list_7, list_8, 'minus', count78],
+               ]
+    callback_df = pd.DataFrame(callback,
+                               columns=['callback', 'list1', 'list2', 'pm', 'func'])
+
+refresh_df()
+
 '''
 API
 '''
@@ -92,6 +97,7 @@ def call_back():
 
 @handler.add(MessageEvent, message=TextMessage)
 def dscbot(event):
+    global list_7, list_8, list_10 ## schedule, status
     msg = event.message.text
     user_id = event.source.user_id
     reply_token = event.reply_token
@@ -101,8 +107,8 @@ def dscbot(event):
         status = 'chat'
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '課表已更改為:\n%s' % msg))
         '''
-        
     if msg in counting:
+        refresh_df()
         count_list(user_id, 
                    callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0],
                    callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0],
@@ -119,8 +125,6 @@ def dscbot(event):
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
 
     elif msg== '清空':
-        global list_7, list_8, list_10 ## schedule, status
         list_7, list_8, list_10= [], [], []
         ## schedule = '尚無課表'
         line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
-
