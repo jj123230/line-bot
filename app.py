@@ -1,15 +1,14 @@
+secret = 'fdd685ea7c3d1fc4b4d6a205fa99b2d4'
+token = 'fFKTMyBIX2nF2spzxbbsrFsfUxORJsD8JERcRBtt35kd0Y3ZJIxf0cl/u1B43yyC1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/JbrnQ8dqDcrSXoJaYb29c'+\
+    'e8aTUdcljcu5T+gKASp3NDr5WsOZxcmAdB04t89/1O/w1cDnyilFU='
 
-'''
-code
-'''
-import requests
-import re
 import time
 
 import pandas as pd
 import datetime
 import os
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -22,20 +21,28 @@ from linebot.models import (PostbackEvent, MessageEvent, TextMessage,
                             ImagemapSendMessage, BaseSize, URIImagemapAction, MessageImagemapAction, ImagemapArea, Video, ExternalLink,
                             RichMenuSwitchAction, RichMenu, RichMenuSize, RichMenuArea, RichMenuBounds, RichMenuAlias)
 
+
+def job():
+    global list_7, list_8, list_10
+    list_7, list_8, list_10= [], [], []
+    print('clear!')
+    
+clear = BackgroundScheduler(daemon=True)
+clear.add_job(job,'cron', second = 30)
+clear.start()
+
 app = Flask(__name__)
 
-line_bot_api = LineBotApi(os.environ.get("token"))
-handler = WebhookHandler(os.environ.get("secret"))
+line_bot_api = LineBotApi(token)
+handler = WebhookHandler(secret)
 
 status = 'chat'
 
 counting = ['7+', '8+', '7-', '8-', '78+', '7+8+', '78-', '7-8-', '10+', '10-']
 
-list_7= []
-list_8= []
-list_10= []
+list_7, list_8, list_10= [], [], []
 ## schedule = '尚無課表'
-
+    
 def count_list(bot_id, list1, list2, pm):
     if pm == 'plus':
         list1.append(bot_id)
@@ -45,9 +52,11 @@ def count_list(bot_id, list1, list2, pm):
         while bot_id in list2: list2.remove(bot_id)
 
 def count78():
+    global list_7, list_8
     return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
 
 def count10():
+    global list_10
     return '10.30: %s人' % len(set(list_10))
 
 callback= [
@@ -62,8 +71,6 @@ callback= [
            ]
 callback_df = pd.DataFrame(callback,
                            columns=['callback', 'list1', 'list2', 'pm', 'func'])
-
-
 '''
 API
 '''
@@ -75,7 +82,7 @@ def call_back():
     if request.method == "POST":
         signature = request.headers["X-Line-Signature"]
         body = request.get_data(as_text=True)
-
+        
         try:
             handler.handle(body, signature)
         except InvalidSignatureError:
@@ -85,7 +92,6 @@ def call_back():
 
 @handler.add(MessageEvent, message=TextMessage)
 def dscbot(event):
-    global list_7, list_8, list_10 ## schedule, status
     msg = event.message.text
     user_id = event.source.user_id
     reply_token = event.reply_token
@@ -95,66 +101,26 @@ def dscbot(event):
         status = 'chat'
         line_bot_api.reply_message(reply_token, TextSendMessage(text = '課表已更改為:\n%s' % msg))
         '''
+        
     if msg in counting:
-        list1 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0]
-        list2 = callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0]
-        pm = callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0]
-        count_list(user_id, list1, list2, pm)
+        count_list(user_id, 
+                   callback_df[(callback_df.callback.apply(lambda x : msg in x))].list1.values[0],
+                   callback_df[(callback_df.callback.apply(lambda x : msg in x))].list2.values[0],
+                   callback_df[(callback_df.callback.apply(lambda x : msg in x))].pm.values[0])
         time.sleep(1)
-
+        
         reply_text = callback_df[(callback_df.callback.apply(lambda x : msg in x))].func.values[0]()
         line_bot_api.reply_message(reply_token, TextSendMessage(text= reply_text))
         
     elif msg == '點名':
-        time.sleep(1)
         if datetime.date.today().weekday()== 5 :
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
         else:
             line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
 
     elif msg== '清空':
-        list_7= []
-        list_8= []
-        list_10= []
+        global list_7, list_8, list_10 ## schedule, status
+        list_7, list_8, list_10= [], [], []
         ## schedule = '尚無課表'
         line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
-      
-      
-'''
-        keyboard= TextSendMessage(text = '點名',
-                                  quick_reply= QuickReply(items= [
-            QuickReplyButton(action= PostbackTemplateAction(label= '輸入課表', data = 'enter_schedule')),
-            QuickReplyButton(action= PostbackTemplateAction(label= '課表', data = 'schedule')),
-            QuickReplyButton(action= PostbackTemplateAction(label= '點名', data = 'count')),
-            QuickReplyButton(action= PostbackTemplateAction(label= '清空', data = 'empty'))
-            ]))
-        line_bot_api.reply_message(reply_token, keyboard)
-        
-@handler.add(PostbackEvent)
-def dscbot_call(event):
-    callback = event.postback.data
-    user_id = event.source.user_id
-    reply_token = event.reply_token
-    
-    if callback == 'enter_schedule':
-        status = 'change'
-        line_bot_api.reply_message(reply_token, TextSendMessage(text = '請輸入課表'))
-        
-    elif callback == 'schedule':
-        line_bot_api.reply_message(reply_token, TextSendMessage(text = schedule))
-        
-    elif callback == 'count':
-        time.sleep(1)
-        if datetime.date.today().weekday()== 5 :
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = count10()))
-        else:
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = count78()))
-            
-    elif callback == 'empty':
-        global list_7, list_8, list_10 ## schedule, status
-        list_7= []
-        list_8= []
-        list_10= []
-        schedule = '尚無課表'
-        line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
-        '''
+
