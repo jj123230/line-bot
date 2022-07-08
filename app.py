@@ -41,7 +41,7 @@ def job():
 job()
     
 clear = BackgroundScheduler(daemon=True)
-clear.add_job(job,'cron', second = 30)
+clear.add_job(job,'cron', hour = 16)
 clear.start()
     
 ## Counting and return (Using if-else)
