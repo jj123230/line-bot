@@ -41,34 +41,51 @@ clear.add_job(job,'cron', hour = 22)
 clear.start()
     
 ## Counting and return (Using if-else)
+# Why I wrote this code in this ugly form: because I use Heroku as webhook, and the CPU ain't good enough to run the code below (line 146- line 175), 
+# thus, I have to wrote in the most efficient way to make the chat bot response without lagging. 
 def call(msg, user_id):
     global list_7, list_8, list_10
-    if msg == '7+':
-        list_7.append(user_id)
-        return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
-    elif msg == '8+':
-        list_8.append(user_id)
-        return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
-    elif msg== '7-':
-        while user_id in list_7: list_7.remove(user_id)
-        return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
-    elif msg== '8-':
-        while user_id in list_8: list_8.remove(user_id)
-        return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
-    elif msg == '10+':
-        list_10.append(user_id)
-        return '10.30: %s人' % len(set(list_10))
-    elif msg == '10-':
-        list_10.append(user_id)
-        return '10.30: %s人' % len(set(list_10))
-    elif msg in ['78+', '7+8+']:
-        list_7.append(user_id)
-        list_8.append(user_id)
-        return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
-    elif msg in ['78-', '7-8-']:
-        while user_id in list_7: list_7.remove(user_id)
-        while user_id in list_8: list_8.remove(user_id)
-        return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+    if len(msg) == 2:
+        if '+' in msg:
+            if msg == '7+':
+                list_7.append(user_id)
+                return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+            elif msg == '8+':
+                list_8.append(user_id)
+                return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+        elif '-' in msg:
+            if msg== '7-':
+                while user_id in list_7: list_7.remove(user_id)
+                return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+            elif msg== '8-':
+                while user_id in list_8: list_8.remove(user_id)
+                return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+    elif len(msg) == 3:
+        if '+' in msg:
+            if msg == '10+':
+                list_10.append(user_id)
+                return '10.30: %s人' % len(set(list_10))
+            elif msg == '78+':
+                list_7.append(user_id)
+                list_8.append(user_id)
+                return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+        elif '-' in msg:
+            if msg == '10-':
+                list_10.append(user_id)
+                return '10.30: %s人' % len(set(list_10))
+            elif msg == '78-':
+                while user_id in list_7: list_7.remove(user_id)
+                while user_id in list_8: list_8.remove(user_id)
+                return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+    elif len(msg) == 4:
+        if msg == '7+8+':
+            list_7.append(user_id)
+            list_8.append(user_id)
+            return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
+        elif msg == '7-8-':
+            while user_id in list_7: list_7.remove(user_id)
+            while user_id in list_8: list_8.remove(user_id)
+            return '7.00: %s人\n8.30: %s人' % (len(set(list_7)), len(set(list_8)))
         
 def recall_78(msg):
     if msg == 10:
