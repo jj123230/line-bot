@@ -2,9 +2,8 @@
 '''
 code
 '''
-secret = 'fdd685ea7c3d1fc4b4d6a205fa99b2d4'
-token = 'fFKTMyBIX2nF2spzxbbsrFsfUxORJsD8JERcRBtt35kd0Y3ZJIxf0cl/u1B43yyC1m+7gaNIO4xOFupofPEyNgb17qz+ckxX/JbrnQ8dqDcrSXoJaYb29c'+\
-    'e8aTUdcljcu5T+gKASp3NDr5WsOZxcmAdB04t89/1O/w1cDnyilFU='
+secret = 'cc1d8b57614278cab126252aa4610364'
+token = 'H4IKf9kD11BsYCvNFaKoHvxb4LCnbt90RhTqpbvamFpdOHkpplrK/pN+yJ/hKtZujU8tVAA64VZ2ZHP2nZgtHELCDrRKBdjsNMrBmOvaqKmAldGuLl/YgsCAaJFKJNs/2aU/nMM6c9kNyhjm+6XIMAdB04t89/1O/w1cDnyilFU='
 
 import datetime
 import os
