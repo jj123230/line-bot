@@ -20,9 +20,8 @@ from linebot.models import (PostbackEvent, MessageEvent, TextMessage,
 
 app = Flask(__name__)
 
-
-line_bot_api = LineBotApi(token)
-handler = WebhookHandler(secret)
+line_bot_api = LineBotApi(os.environ.get('token'))
+handler = WebhookHandler(os.environ.get('secret'))
 
 status = 'chat'
 list_7810 = ['list_7', 'list_8', 'list_10']
