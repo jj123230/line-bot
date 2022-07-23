@@ -143,7 +143,7 @@ def dscbot(event):
         ## schedule = '尚無課表'
         line_bot_api.reply_message(reply_token, TextSendMessage(text= '清空!'))
 
-    
+app.run(debug = False)
 '''
 port = 80
 import time
