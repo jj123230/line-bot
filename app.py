@@ -39,6 +39,13 @@ job()
 clear = BackgroundScheduler(daemon=True)
 clear.add_job(job,'cron', hour = 22)
 clear.start()
+
+def nosleep():
+    print('clear!')
+    
+no_sleep = BackgroundScheduler(daemon=True)
+no_sleep.add_job(nosleep,'interval', minute = 20)
+no_sleep.start()
     
 ## Counting and return (Using if-else)
 # Why I wrote this code in this ugly form: because I use Heroku as webhook, and the CPU ain't good enough to run the code below (line 146- line 175), 
